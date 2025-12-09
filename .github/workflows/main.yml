@@ -1,0 +1,42 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - main
+  # Anda juga bisa menambahkan trigger 'pull_request' jika diperlukan
+  # pull_request:
+  #   branches:
+  #     - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        # Menginstal Vercel CLI secara global
+        run: npm install -g vercel
+
+      # Opsi 1: Build (Jika Anda memiliki langkah build, meski untuk HTML statis biasanya tidak perlu)
+      # - name: Build project (Optional)
+      #   run: npm run build # Ganti dengan perintah build Anda jika ada
+
+      - name: Pull Vercel Environment Information (Optional but recommended)
+        # Mengambil informasi environment dari Vercel
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        # Catatan: Perintah ini mungkin tidak diperlukan untuk deploy awal/proyek sederhana.
+        # Jika Anda tidak memiliki vercel.json, Anda mungkin perlu melewatkan langkah ini.
+
+      - name: Deploy to Vercel
+        # Melakukan deployment ke Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        # '--prebuilt' karena kita menganggap proyek HTML statis sudah 'siap'
+        # '--prod' untuk deploy ke production (domain utama)
+
+      # Contoh perintah deploy yang lebih spesifik jika Anda tidak memiliki vercel.json:
+      # run: vercel deploy --prebuilt --prod --dir=./ --token=${{ secrets.VERCEL_TOKEN }}
+      # Ganti './' dengan direktori tempat file HTML Anda berada jika tidak di root.
